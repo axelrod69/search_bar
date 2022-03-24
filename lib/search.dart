@@ -12,6 +12,8 @@ class SearchState extends State<Search> {
   bool value = true;
   bool isLoading = true;
   String query = '';
+  List<dynamic> search = [];
+  PopularDishesProvider popular = PopularDishesProvider();
 
   @override
   void initState() {
@@ -21,6 +23,8 @@ class SearchState extends State<Search> {
         .then((_) {
       setState(() {
         isLoading = false;
+        search = Provider.of<PopularDishesProvider>(context, listen: false)
+            .searchResult;
       });
     });
     super.initState();
@@ -48,6 +52,7 @@ class SearchState extends State<Search> {
 
     PopularDishesProvider popular = PopularDishesProvider();
     print(query);
+    print(search);
 
     // TODO: implement build
     return Scaffold(
@@ -301,11 +306,11 @@ class SearchState extends State<Search> {
                           color: Colors.red,
                           child: ListView.builder(
                             itemBuilder: (context, index) => ListTile(
-                                title: Text(provider[index]['product_name'])),
+                                title: Text(search[index]['product_name'])),
                             // dishProvider['data'][index]['product_name']),
                             // provider[index]['product_name'])),
                             // itemCount: dishProvider["data"].length,
-                            itemCount: provider.length,
+                            itemCount: search.length,
                           ),
                         )
                       : Container(

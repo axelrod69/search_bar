@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import './dishesModel.dart';
 import 'package:http/http.dart' as http;
@@ -51,19 +49,27 @@ class PopularDishesProvider with ChangeNotifier {
     _dishes = popularDishes.toJson();
     // _searchDish
     //     .add(_popularDishes['data'].map((value) => value['product_name']));
+    // print('Dishes Data ${_dishes['data']}');
     _dishes['data'].forEach((value) => _searchDish.add(value));
-    _searchResult.add(_searchDish.where((element) {
+    _searchResult = _searchDish.where((element) {
       final name = element['product_name'].toLowerCase();
       final searchQuery = query.toLowerCase();
       return name.contains(searchQuery);
-    }));
+    }).toList();
+    // _searchDish.add(_searchDish.where((element) {
+    //   final name = element['product_name'].toLowerCase();
+    //   final searchQuery = query.toLowerCase();
+    //   return name.contains(searchQuery);
+    // }));
     // _searchDish
     //     .forEach((value) => _searchResult.add(_searchDish.where((element) {
     //           final name = element['product_name'].toLowerCase();
     //           final searchQuery = query.toLowerCase();
     //           return name.contains(searchQuery);
     //         })));
-    print(_searchResult);
+    // print(_searchDish);
+    notifyListeners();
+    // print('Search Dish $_searchResult');
     // print(_searchResult);
   }
 
