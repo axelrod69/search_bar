@@ -23,8 +23,6 @@ class SearchState extends State<Search> {
         .then((_) {
       setState(() {
         isLoading = false;
-        search = Provider.of<PopularDishesProvider>(context, listen: false)
-            .searchResult;
       });
     });
     super.initState();
