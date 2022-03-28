@@ -42,7 +42,7 @@ class PopularDishesProvider with ChangeNotifier {
     // print('Popular Dishes $_popularDishes');
   }
 
-  Future<void> searchData(String query) async {
+  Future<void> searchData() async {
     final url = Uri.parse(baseUrl + 'api/all_products');
     final response = await http.get(url);
     PopularDishes popularDishes = popularDishesFromJson(response.body);
@@ -51,11 +51,11 @@ class PopularDishesProvider with ChangeNotifier {
     //     .add(_popularDishes['data'].map((value) => value['product_name']));
     // print('Dishes Data ${_dishes['data']}');
     _dishes['data'].forEach((value) => _searchDish.add(value));
-    _searchResult = _searchDish.where((element) {
-      final name = element['product_name'].toLowerCase();
-      final searchQuery = query.toLowerCase();
-      return name.contains(searchQuery);
-    }).toList();
+    // _searchResult = _searchDish.where((element) {
+    //   final name = element['product_name'].toLowerCase();
+    //   final searchQuery = query.toLowerCase();
+    //   return name.contains(searchQuery);
+    // }).toList();
     // _searchDish.add(_searchDish.where((element) {
     //   final name = element['product_name'].toLowerCase();
     //   final searchQuery = query.toLowerCase();
@@ -67,7 +67,7 @@ class PopularDishesProvider with ChangeNotifier {
     //           final searchQuery = query.toLowerCase();
     //           return name.contains(searchQuery);
     //         })));
-    // print(_searchDish);
+    print(_searchDish);
     notifyListeners();
     // print('Search Dish $_searchResult');
     // print(_searchResult);

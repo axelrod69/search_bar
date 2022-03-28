@@ -6,6 +6,7 @@ class PopularRestaurantProvider with ChangeNotifier {
   String baseUrl = 'https://achievexsolutions.in/current_work/eatiano/';
   Map<String, dynamic> _restaurants = {};
   Map<String, dynamic> _searchRestaurants = {};
+  List<dynamic> _restaurantList = [];
   final queryParams = {'lat': '22.5735314', 'lng': '88.4331189'};
 
   Map<String, dynamic> get restaurants {
@@ -14,6 +15,10 @@ class PopularRestaurantProvider with ChangeNotifier {
 
   Map<String, dynamic> get searchRestaurants {
     return {..._searchRestaurants};
+  }
+
+  List<dynamic> get restaurantList {
+    return [..._restaurantList];
   }
 
   Future<void> fetchRestaurants() async {
@@ -30,6 +35,11 @@ class PopularRestaurantProvider with ChangeNotifier {
     PopularRestaurants popularRestaurants =
         popularRestaurantsFromJson(response.body);
     _restaurants = popularRestaurants.toJson();
+    // _restaurants['data']['data']
+    //     .forEach((key, value) => _restaurantList.add(value));
+    _restaurants['data'].map((value) =>
+        value['data'].forEach((value) => _restaurantList.add(value)));
+    print('Restaurants List $_restaurantList');
     // print('Restaurants $_restaurants');
   }
 

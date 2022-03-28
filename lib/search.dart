@@ -11,21 +11,47 @@ class SearchState extends State<Search> {
   final _controller = TextEditingController();
   bool value = true;
   bool isLoading = true;
-  String query = '';
-  List<dynamic> search = [];
-  PopularDishesProvider popular = PopularDishesProvider();
+  List<dynamic> query = [];
+  List<dynamic> data = [];
+  List<dynamic> queryRestaurant = [];
+  List<dynamic> restauranData = [];
 
   @override
   void initState() {
     // TODO: implement initState
-    Provider.of<PopularDishesProvider>(context, listen: false)
-        .searchData('')
-        .then((_) {
-      setState(() {
-        isLoading = false;
-      });
-    });
+    !value
+        ? Provider.of<PopularDishesProvider>(context, listen: false)
+            .searchData()
+            .then((_) {
+            setState(() {
+              isLoading = false;
+              data = Provider.of<PopularDishesProvider>(context, listen: false)
+                  .searchDish;
+              query = data;
+            });
+          })
+        : Provider.of<PopularRestaurantProvider>(context, listen: false)
+            .fetchRestaurants()
+            .then((value) {
+            setState(() {
+              isLoading = false;
+              queryRestaurant =
+                  Provider.of<PopularRestaurantProvider>(context, listen: false)
+                      .restaurantList;
+              restauranData = queryRestaurant;
+            });
+          });
     super.initState();
+  }
+
+  searchByQuery(String search) {
+    setState(() {
+      query = data
+          .where((element) => element['product_name']
+              .toLowerCase()
+              .contains(search.toLowerCase()))
+          .toList();
+    });
   }
 
   // @override
@@ -43,14 +69,14 @@ class SearchState extends State<Search> {
     final dishProvider =
         Provider.of<PopularDishesProvider>(context).popularDishes;
     final restaurantProvider =
-        Provider.of<PopularRestaurantProvider>(context).restaurants;
+        Provider.of<PopularRestaurantProvider>(context).restaurantList;
     final provider = Provider.of<PopularDishesProvider>(context).searchDish;
     final searchProvider =
-        Provider.of<PopularDishesProvider>(context).searchResult;
+        Provider.of<PopularDishesProvider>(context).searchDish;
 
     PopularDishesProvider popular = PopularDishesProvider();
-    print(query);
-    print(search);
+    // print(query);
+    // print(search);
 
     // TODO: implement build
     return Scaffold(
@@ -148,17 +174,19 @@ class SearchState extends State<Search> {
                                       child: Center(
                                         child: TextField(
                                           controller: _controller,
-                                          onChanged: (value) async {
-                                            setState(() {
-                                              query = value;
-                                            });
-                                            // Provider.of<PopularDishesProvider>(
-                                            //         context,
-                                            //         listen: false)
-                                            //     .searchData(value.toString());
-                                            await popular.searchData(value);
-                                            // print(query);
-                                          },
+                                          onChanged: (value) =>
+                                              searchByQuery(value),
+                                          // onChanged: (value) async {
+                                          //   setState(() {
+                                          //     query = value;
+                                          //   });
+                                          //   // Provider.of<PopularDishesProvider>(
+                                          //   //         context,
+                                          //   //         listen: false)
+                                          //   //     .searchData(value.toString());
+                                          //   await popular.searchData(value);
+                                          //   // print(query);
+                                          // },
                                           autofocus: true,
                                           cursorColor: Colors.grey,
                                           style: const TextStyle(
@@ -277,8 +305,10 @@ class SearchState extends State<Search> {
                               const Color.fromRGBO(255, 250, 168, 1)),
                       value: value,
                       onChanged: (value) {
+                        print(value);
                         setState(() {
                           this.value = value;
+                          print(value);
                         });
                       }),
                 ),
@@ -304,11 +334,11 @@ class SearchState extends State<Search> {
                           color: Colors.red,
                           child: ListView.builder(
                             itemBuilder: (context, index) => ListTile(
-                                title: Text(search[index]['product_name'])),
+                                title: Text(query[index]['product_name'])),
                             // dishProvider['data'][index]['product_name']),
                             // provider[index]['product_name'])),
                             // itemCount: dishProvider["data"].length,
-                            itemCount: search.length,
+                            itemCount: query.length,
                           ),
                         )
                       : Container(
@@ -316,11 +346,10 @@ class SearchState extends State<Search> {
                           color: Colors.blue,
                           child: ListView.builder(
                             itemBuilder: (context, index) => ListTile(
-                              title: Text(restaurantProvider['data']['data']
-                                  [index]['restaurant_name']),
+                              title: Text(
+                                  restaurantProvider[index]['restaurant_name']),
                             ),
-                            itemCount:
-                                restaurantProvider["data"]["data"].length,
+                            itemCount: restaurantProvider.length,
                           ),
                         ))
         ],
