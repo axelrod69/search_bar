@@ -51,6 +51,13 @@ class SearchState extends State<Search> {
               .contains(search.toLowerCase()))
           .toList();
     });
+    setState(() {
+      restauranData = queryRestaurant
+          .where((element) => element['restaurant_name']
+              .toLowerCase()
+              .contains(search.toLowerCase()))
+          .toList();
+    });
   }
 
   searchByRestaurant(String search) {
@@ -183,9 +190,11 @@ class SearchState extends State<Search> {
                                       child: Center(
                                         child: TextField(
                                           controller: _controller,
-                                          onChanged: (value) => switchState
-                                              ? searchByQuery(value)
-                                              : searchByRestaurant(value),
+                                          onChanged: (value) =>
+                                              searchByQuery(value),
+                                          // switchState
+                                          //     ? searchByQuery(value)
+                                          // : searchByRestaurant(value),
                                           // onChanged: (value) async {
                                           //   setState(() {
                                           //     query = value;
