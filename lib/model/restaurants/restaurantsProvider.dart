@@ -35,10 +35,11 @@ class PopularRestaurantProvider with ChangeNotifier {
     PopularRestaurants popularRestaurants =
         popularRestaurantsFromJson(response.body);
     _restaurants = popularRestaurants.toJson();
-    // _restaurants['data']['data']
+    _restaurantList = _restaurants['data']['data'] as List;
+    // restaurantList
     //     .forEach((key, value) => _restaurantList.add(value));
-    _restaurants['data'].map((value) =>
-        value['data'].forEach((value) => _restaurantList.add(value)));
+    // _restaurants['data'].map((value) =>
+    //     value['data'].forEach((value) => _restaurantList.add(value)));
     print('Restaurants List $_restaurantList');
     // print('Restaurants $_restaurants');
   }

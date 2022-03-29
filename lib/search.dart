@@ -9,7 +9,7 @@ class Search extends StatefulWidget {
 
 class SearchState extends State<Search> {
   final _controller = TextEditingController();
-  bool value = true;
+  bool switchState = true;
   bool isLoading = true;
   List<dynamic> query = [];
   List<dynamic> data = [];
@@ -19,28 +19,27 @@ class SearchState extends State<Search> {
   @override
   void initState() {
     // TODO: implement initState
-    !value
-        ? Provider.of<PopularDishesProvider>(context, listen: false)
-            .searchData()
-            .then((_) {
-            setState(() {
-              isLoading = false;
-              data = Provider.of<PopularDishesProvider>(context, listen: false)
-                  .searchDish;
-              query = data;
-            });
-          })
-        : Provider.of<PopularRestaurantProvider>(context, listen: false)
-            .fetchRestaurants()
-            .then((value) {
-            setState(() {
-              isLoading = false;
-              queryRestaurant =
-                  Provider.of<PopularRestaurantProvider>(context, listen: false)
-                      .restaurantList;
-              restauranData = queryRestaurant;
-            });
-          });
+    Provider.of<PopularDishesProvider>(context, listen: false)
+        .searchData()
+        .then((_) {
+      setState(() {
+        isLoading = false;
+        data = Provider.of<PopularDishesProvider>(context, listen: false)
+            .searchDish;
+        query = data;
+      });
+    });
+    Provider.of<PopularRestaurantProvider>(context, listen: false)
+        .fetchRestaurants()
+        .then((value) {
+      setState(() {
+        isLoading = false;
+        queryRestaurant =
+            Provider.of<PopularRestaurantProvider>(context, listen: false)
+                .restaurantList;
+        restauranData = queryRestaurant;
+      });
+    });
     super.initState();
   }
 
@@ -50,6 +49,16 @@ class SearchState extends State<Search> {
           .where((element) => element['product_name']
               .toLowerCase()
               .contains(search.toLowerCase()))
+          .toList();
+    });
+  }
+
+  searchByRestaurant(String search) {
+    setState(() {
+      restauranData = queryRestaurant
+          .where((element) => element['restaurant_name']
+              .toLowerCase()
+              .contains(search.toLowerCase))
           .toList();
     });
   }
@@ -174,8 +183,9 @@ class SearchState extends State<Search> {
                                       child: Center(
                                         child: TextField(
                                           controller: _controller,
-                                          onChanged: (value) =>
-                                              searchByQuery(value),
+                                          onChanged: (value) => switchState
+                                              ? searchByQuery(value)
+                                              : searchByRestaurant(value),
                                           // onChanged: (value) async {
                                           //   setState(() {
                                           //     query = value;
@@ -295,20 +305,20 @@ class SearchState extends State<Search> {
                 Transform.scale(
                   scale: 1.2,
                   child: Switch.adaptive(
-                      thumbColor: value
+                      thumbColor: switchState
                           ? MaterialStateProperty.all(Colors.red)
                           : MaterialStateProperty.all(Colors.amber),
-                      trackColor: value
+                      trackColor: switchState
                           ? MaterialStateProperty.all(
                               Color.fromRGBO(255, 194, 168, 1))
                           : MaterialStateProperty.all(
                               const Color.fromRGBO(255, 250, 168, 1)),
-                      value: value,
+                      value: switchState,
                       onChanged: (value) {
-                        print(value);
+                        print(switchState);
                         setState(() {
-                          this.value = value;
-                          print(value);
+                          this.switchState = value;
+                          print(switchState);
                         });
                       }),
                 ),
@@ -323,35 +333,69 @@ class SearchState extends State<Search> {
               ],
             ),
           ),
-          isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Expanded(
-                  child: value
-                      ? Container(
-                          width: double.infinity,
-                          color: Colors.red,
-                          child: ListView.builder(
-                            itemBuilder: (context, index) => ListTile(
-                                title: Text(query[index]['product_name'])),
-                            // dishProvider['data'][index]['product_name']),
-                            // provider[index]['product_name'])),
-                            // itemCount: dishProvider["data"].length,
-                            itemCount: query.length,
+          switchState
+              ? (isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        color: Colors.red,
+                        child: ListView.builder(
+                          itemBuilder: (context, index) => ListTile(
+                              title: Text(query[index]['product_name'])),
+                          // dishProvider['data'][index]['product_name']),
+                          // provider[index]['product_name'])),
+                          // itemCount: dishProvider["data"].length,
+                          itemCount: query.length,
+                        ),
+                      ),
+                    ))
+              : (isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        color: Colors.blue,
+                        child: ListView.builder(
+                          itemBuilder: (context, index) => ListTile(
+                            title:
+                                Text(restauranData[index]['restaurant_name']),
                           ),
-                        )
-                      : Container(
-                          width: double.infinity,
-                          color: Colors.blue,
-                          child: ListView.builder(
-                            itemBuilder: (context, index) => ListTile(
-                              title: Text(
-                                  restaurantProvider[index]['restaurant_name']),
-                            ),
-                            itemCount: restaurantProvider.length,
-                          ),
-                        ))
+                          itemCount: restauranData.length,
+                        ),
+                      ),
+                    ))
+          // isLoading
+          //     ? const Center(
+          //         child: CircularProgressIndicator(),
+          //       )
+          //     : Expanded(
+          //         child: value
+          // ?
+          // Container(
+          //     width: double.infinity,
+          //     color: Colors.red,
+          //     child: ListView.builder(
+          //       itemBuilder: (context, index) => ListTile(
+          //           title: Text(query[index]['product_name'])),
+          //       // dishProvider['data'][index]['product_name']),
+          //       // provider[index]['product_name'])),
+          //       // itemCount: dishProvider["data"].length,
+          //       itemCount: query.length,
+          //     ),
+          //   )
+          //             : Container(
+          //                 width: double.infinity,
+          //                 color: Colors.blue,
+          //   child: ListView.builder(
+          //     itemBuilder: (context, index) => ListTile(
+          //       title: Text(
+          //           restaurantProvider[index]['restaurant_name']),
+          //     ),
+          //     itemCount: restaurantProvider.length,
+          //   ),
+          // )
+          // )
         ],
       ),
     );
